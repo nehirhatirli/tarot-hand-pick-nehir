@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Rider–Waite–Smith Tarot Deck</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121016;
+            color: #E6E1DE;
+        }
+        .tarot-font {
+            font-family: 'Cormorant Garamond', serif;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121016;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3A3245;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="h-full bg-[#121016] text-[#E6E1DE] antialiased selection:bg-[#D4AF37]/30 selection:text-[#F3E5AB]">
+    <div id="root" class="min-h-full flex flex-col"></div>
+
+    <script type="text/babel">
+        const createFullDeck = () => {
+            const deck = [];
+
+            // Major Arcana (22 cards) with verified Wikimedia Commons RWS scans
+            const majorImages = [
+                "https://upload.wikimedia.org/wikipedia/commons/9/90/Rider-Waite-Tarot_00_Fool.jpg", // 0 The Fool
+                "https://upload.wikimedia.org/wikipedia/commons/d/de/Rider-Waite-Tarot_01_Magician.jpg", // 1 The Magician
+                "https://upload.wikimedia.org/wikipedia/commons/8/88/Rider-Waite-Tarot_02_High_Priestess.jpg", // 2 High Priestess
+                "https://upload.wikimedia.org/wikipedia/commons/d/d2/Rider-Waite-Tarot_03_Empress.jpg", // 3 Empress
+                "https://upload.wikimedia.org/wikipedia/commons/c/c3/Rider-Waite-Tarot_04_Emperor.jpg", // 4 Emperor
+                "https://upload.wikimedia.org/wikipedia/commons/8/8d/Rider-Waite-Tarot_05_Hierophant.jpg", // 5 Hierophant
+                "https://upload.wikimedia.org/wikipedia/commons/d/db/Rider-Waite-Tarot_06_Lovers.jpg", // 6 Lovers
+                "https://upload.wikimedia.org/wikipedia/commons/9/9b/Rider-Waite-Tarot_07_Chariot.jpg", // 7 Chariot
+                "https://upload.wikimedia.org/wikipedia/commons/f/f5/Rider-Waite-Tarot_08_Strength.jpg", // 8 Strength
+                "https://upload.wikimedia.org/wikipedia/commons/4/4d/Rider-Waite-Tarot_09_Hermit.jpg", // 9 Hermit
+                "https://upload.wikimedia.org/wikipedia/commons/3/3c/Rider-Waite-Tarot_10_Wheel_of_Fortune.jpg", // 10 Wheel of Fortune
+                "https://upload.wikimedia.org/wikipedia/commons/e/e0/Rider-Waite-Tarot_11_Justice.jpg", // 11 Justice
+                "https://upload.wikimedia.org/wikipedia/commons/2/2b/Rider-Waite-Tarot_12_Hanged_Man.jpg", // 12 Hanged Man
+                "https://upload.wikimedia.org/wikipedia/commons/d/d7/Rider-Waite-Tarot_13_Death.jpg", // 13 Death
+                "https://upload.wikimedia.org/wikipedia/commons/f/f8/Rider-Waite-Tarot_14_Temperance.jpg", // 14 Temperance
+                "https://upload.wikimedia.org/wikipedia/commons/5/55/Rider-Waite-Tarot_15_Devil.jpg", // 15 Devil
+                "https://upload.wikimedia.org/wikipedia/commons/5/53/Rider-Waite-Tarot_16_Tower.jpg", // 16 Tower
+                "https://upload.wikimedia.org/wikipedia/commons/d/db/Rider-Waite-Tarot_17_Star.jpg", // 17 Star
+                "https://upload.wikimedia.org/wikipedia/commons/7/7f/Rider-Waite-Tarot_18_Moon.jpg", // 18 Moon
+                "https://upload.wikimedia.org/wikipedia/commons/1/17/Rider-Waite-Tarot_19_Sun.jpg", // 19 Sun
+                "https://upload.wikimedia.org/wikipedia/commons/d/dd/Rider-Waite-Tarot_20_Judgement.jpg", // 20 Judgement
+                "https://upload.wikimedia.org/wikipedia/commons/f/ff/Rider-Waite-Tarot_21_World.jpg"  // 21 World
+            ];
+
+            const majors = [
+                "The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor",
+                "The Hierophant", "The Lovers", "The Chariot", "Strength", "The Hermit",
+                "Wheel of Fortune", "Justice", "The Hanged Man", "Death", "Temperance",
+                "The Devil", "The Tower", "The Star", "The Moon", "The Sun", "Judgement", "The World"
+            ];
+
+            const romanNumerals = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX", "XXI"];
+
+            majors.forEach((name, idx) => {
+                deck.push({
+                    id: `major-${idx}`,
+                    name: name,
+                    arcana: "Major Arcana",
+                    suit: null,
+                    number: romanNumerals[idx],
+                    image: majorImages[idx],
+                    symbol: romanNumerals[idx]
+                });
+            });
+
+            const suits = ["Wands", "Cups", "Swords", "Pentacles"];
+            const ranks = [
+                { name: "Ace", code: "01" },
+                { name: "Two", code: "02" },
+                { name: "Three", code: "03" },
+                { name: "Four", code: "04" },
+                { name: "Five", code: "05" },
+                { name: "Six", code: "06" },
+                { name: "Seven", code: "07" },
+                { name: "Eight", code: "08" },
+                { name: "Nine", code: "09" },
+                { name: "Ten", code: "10" },
+                { name: "Page", code: "11" },
+                { name: "Knight", code: "12" },
+                { name: "Queen", code: "13" },
+                { name: "King", code: "14" }
+            ];
+
+            suits.forEach((suit, suitIdx) => {
+                ranks.forEach((rank, rankIdx) => {
+                    const cardName = `${rank.name} of ${suit}`;
+                    const globalIndex = 22 + (suitIdx * 14) + rankIdx;
+                    deck.push({
+                        id: `minor-${suit.toLowerCase()}-${rank.code}`,
+                        name: cardName,
+                        arcana: "Minor Arcana",
+                        suit: suit,
+                        number: rank.name,
+                        image: `https://raw.githubusercontent.com/metabismuth/tarot-json/master/cards/${globalIndex}.jpg`,
+                        symbol: suit[0]
+                    });
+                });
+            });
+
+            return deck;
+        };
+
+        const cryptoShuffle = (array) => {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const buffer = new Uint32Array(1);
+                window.crypto.getRandomValues(buffer);
+                const j = buffer[0] % (i + 1);
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        };
+
+        const cryptoRandomOrientation = () => {
+            const buffer = new Uint8Array(1);
+            window.crypto.getRandomValues(buffer);
+            return (buffer[0] % 2 === 0) ? 'upright' : 'reversed';
+        };
+
+        function TarotCardBack({ onClick, isSelected, isAnimating }) {
+            if (isSelected) {
+                return (
+                    <div className="w-24 sm:w-28 md:w-32 aspect-[2/3] rounded-xl border-2 border-dashed border-[#2F273D] bg-[#14101a]/40 flex items-center justify-center opacity-40 select-none">
+                        <span className="text-[10px] text-[#5A4F70] tarot-font uppercase">Selected</span>
+                    </div>
+                );
+            }
+
+            return (
+                <div 
+                    onClick={onClick}
+                    className={`group relative w-24 sm:w-28 md:w-32 aspect-[2/3] rounded-xl cursor-pointer select-none transition-transform duration-300 hover:-translate-y-2 hover:shadow-[0_10px_25px_rgba(212,175,55,0.25)] ${isAnimating ? 'scale-95 opacity-80' : ''}`}
+                >
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#1a1423] via-[#241c30] to-[#120e19] border-2 border-[#D4AF37]/40 shadow-2xl overflow-hidden flex flex-col items-center justify-center p-2">
+                        <div className="absolute inset-1.5 border border-[#D4AF37]/20 rounded-lg flex items-center justify-center">
+                            <div className="absolute inset-2 border border-[#D4AF37]/10 rounded flex items-center justify-center">
+                                <div className="w-8 h-8 sm:w-10 sm:h-10 rotate-45 border border-[#D4AF37]/40 flex items-center justify-center">
+                                    <div className="w-3 h-3 bg-[#D4AF37]/30 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="absolute top-2 left-2 w-2 h-2 rounded-full bg-[#D4AF37]/40"></div>
+                        <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#D4AF37]/40"></div>
+                        <div className="absolute bottom-2 left-2 w-2 h-2 rounded-full bg-[#D4AF37]/40"></div>
+                        <div className="absolute bottom-2 right-2 w-2 h-2 rounded-full bg-[#D4AF37]/40"></div>
+                        <span className="text-[10px] tracking-widest text-[#D4AF37]/60 uppercase tarot-font font-semibold mt-auto mb-1">RWS</span>
+                    </div>
+                </div>
+            );
+        }
+
+        function RevealedCard({ card, index }) {
+            const [imgError, setImgError] = React.useState(false);
+
+            // Suit color and icon helper for rich pictorial fallback if image fails
+            const getSuitDetails = (suit) => {
+                switch(suit) {
+                    case 'Wands': return { color: 'text-amber-500', bg: 'from-amber-950/60 to-orange-950/85', symbol: '🪵', border: 'border-amber-600/50' };
+                    case 'Cups': return { color: 'text-blue-400', bg: 'from-blue-950/60 to-cyan-950/85', symbol: '🏆', border: 'border-blue-500/50' };
+                    case 'Swords': return { color: 'text-purple-400', bg: 'from-purple-950/60 to-slate-950/85', symbol: '⚔️', border: 'border-purple-500/50' };
+                    case 'Pentacles': return { color: 'text-emerald-400', bg: 'from-emerald-950/60 to-green-950/85', symbol: '🪙', border: 'border-emerald-500/50' };
+                    default: return { color: 'text-[#D4AF37]', bg: 'from-amber-950/55 to-purple-950/80', symbol: '✨', border: 'border-[#D4AF37]/60' };
+                }
+            };
+
+            const details = getSuitDetails(card.suit);
+
+            return (
+                <div className="flex flex-col items-center animate-fadeIn">
+                    <div className="text-xs uppercase tracking-widest text-[#D4AF37] font-medium mb-2">
+                        Card {index + 1}
+                    </div>
+                    <div className="relative w-32 sm:w-36 md:w-44 aspect-[2/3] rounded-xl bg-[#1a1622] border-2 border-[#D4AF37]/60 shadow-[0_15px_30px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col items-center p-1.5 transition-transform duration-500">
+                        <div className={`w-full h-full relative overflow-hidden rounded-lg bg-[#110e17] flex items-center justify-center ${card.orientation === 'reversed' ? 'rotate-180' : ''}`}>
+                            {!imgError ? (
+                                <img 
+                                    src={card.image} 
+                                    alt={card.name}
+                                    onError={() => setImgError(true)}
+                                    className="w-full h-full object-cover"
+                                    loading="lazy"
+                                />
+                            ) : (
+                                <div className={`flex flex-col items-center justify-center p-4 text-center bg-gradient-to-b ${details.bg} w-full h-full ${details.color} border ${details.border} relative`}>
+                                    <div className="absolute inset-1 border border-dashed border-[#D4AF37]/30 rounded flex flex-col items-center justify-center p-2">
+                                        <div className="text-3xl mb-2">{details.symbol}</div>
+                                        <span className="tarot-font text-2xl font-bold tracking-wider text-[#F3E5AB] mb-1">{card.number || card.symbol}</span>
+                                        <span className="text-[11px] font-semibold uppercase tracking-wider text-[#E6E1DE] leading-tight">{card.name}</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    <div className="mt-3 text-center">
+                        <h3 className="tarot-font text-base sm:text-lg font-bold text-[#F3E5AB] max-w-[140px] truncate">{card.name}</h3>
+                        <div className="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#2a2238] text-[#D4AF37] border border-[#D4AF37]/30">
+                            {card.orientation === 'upright' ? 'Upright' : 'Reversed'}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function TarotApp() {
+            const [fullDeck] = React.useState(() => createFullDeck());
+            const [deck, setDeck] = React.useState([]);
+            const [selectedCards, setSelectedCards] = React.useState([]);
+            const [targetDrawCount, setTargetDrawCount] = React.useState(3);
+            const [isComplete, setIsComplete] = React.useState(false);
+            const [animatingId, setAnimatingId] = React.useState(null);
+
+            const startNewDraw = () => {
+                const shuffled = cryptoShuffle(fullDeck).map(card => ({
+                    ...card,
+                    isChosen: false
+                }));
+                setDeck(shuffled);
+                setSelectedCards([]);
+                setIsComplete(false);
+                setAnimatingId(null);
+            };
+
+            React.useEffect(() => {
+                startNewDraw();
+            }, [targetDrawCount]);
+
+            const handleCardClick = (card, index) => {
+                if (isComplete || animatingId || card.isChosen || selectedCards.length >= targetDrawCount) return;
+
+                setAnimatingId(card.id);
+                const orientation = cryptoRandomOrientation();
+
+                setTimeout(() => {
+                    const revealedCard = {
+                        ...card,
+                        orientation
+                    };
+
+                    const newSelected = [...selectedCards, revealedCard];
+                    setSelectedCards(newSelected);
+
+                    setDeck(prevDeck => prevDeck.map(c => c.id === card.id ? { ...c, isChosen: true } : c));
+                    setAnimatingId(null);
+
+                    if (newSelected.length >= targetDrawCount) {
+                        setIsComplete(true);
+                    }
+                }, 300);
+            };
+
+            const remainingCount = deck.filter(c => !c.isChosen).length;
+
+            return (
+                <div className="min-h-screen flex flex-col bg-[#121016] text-[#E6E1DE]">
+                    <header className="border-b border-[#2A2238] bg-[#16121d]/80 backdrop-blur-md sticky top-0 z-30 px-4 py-4 sm:px-8">
+                        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div>
+                                <h1 className="tarot-font text-2xl sm:text-3xl font-bold tracking-wide text-[#F3E5AB]">
+                                    Rider–Waite–Smith Tarot Deck
+                                </h1>
+                                <p className="text-xs sm:text-sm text-[#A098B0]">
+                                    A digital simulation of shuffling and drawing from a physical tarot deck.
+                                </p>
+                            </div>
+
+                            <div className="flex items-center gap-4 flex-wrap justify-center">
+                                <div className="flex items-center gap-2 bg-[#201a2c] px-3 py-1.5 rounded-lg border border-[#3A304D]">
+                                    <span className="text-xs text-[#A098B0] font-medium">Draw Count:</span>
+                                    <select 
+                                        value={targetDrawCount}
+                                        onChange={(e) => setTargetDrawCount(Number(e.target.value))}
+                                        disabled={selectedCards.length > 0 && !isComplete}
+                                        className="bg-[#121016] text-[#F3E5AB] text-sm font-semibold rounded px-2 py-0.5 border border-[#4A3E5C] focus:outline-none focus:border-[#D4AF37]"
+                                    >
+                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                                            <option key={n} value={n}>{n} {n === 1 ? 'Card' : 'Cards'}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <button
+                                    onClick={startNewDraw}
+                                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#B89728] text-[#121016] font-semibold text-sm shadow-md hover:from-[#E5C158] hover:to-[#C9A433] transition-all transform active:scale-95"
+                                >
+                                    New Draw / Shuffle
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 sm:py-8 flex flex-col gap-8">
+                        <div className="flex flex-col sm:flex-row items-center justify-between bg-[#191422] border border-[#2E243D] rounded-xl p-4 shadow-lg gap-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-3 h-3 rounded-full bg-[#D4AF37] animate-pulse"></div>
+                                <span className="text-sm font-medium">
+                                    {isComplete ? (
+                                        <span className="text-[#F3E5AB] font-semibold">Draw Complete ({targetDrawCount} of {targetDrawCount} selected)</span>
+                                    ) : (
+                                        <span>Selected <strong className="text-[#F3E5AB]">{selectedCards.length}</strong> of <strong className="text-[#F3E5AB]">{targetDrawCount}</strong> cards. Click any face-down card below.</span>
+                                    )}
+                                </span>
+                            </div>
+                            <span className="text-xs text-[#A098B0]">
+                                Remaining in deck: <strong className="text-[#E6E1DE]">{remainingCount}</strong> / 78
+                            </span>
+                        </div>
+
+                        {/* Selected Results Area */}
+                        <section className="bg-[#15111c] border border-[#292036] rounded-2xl p-6 shadow-inner">
+                            <h2 className="tarot-font text-xl font-bold text-[#F3E5AB] mb-4 flex items-center gap-2">
+                                <span>Selected Cards</span>
+                                <span className="text-xs font-sans font-normal text-[#A098B0] bg-[#221b2f] px-2.5 py-0.5 rounded-full">
+                                    In order of selection
+                                </span>
+                            </h2>
+
+                            {selectedCards.length === 0 ? (
+                                <div className="py-12 text-center text-[#827896] border-2 border-dashed border-[#261E33] rounded-xl">
+                                    <p className="text-sm">No cards drawn yet. Select cards from the deck below.</p>
+                                </div>
+                            ) : (
+                                <div className="flex flex-wrap gap-6 justify-center sm:justify-start">
+                                    {selectedCards.map((card, index) => (
+                                        <RevealedCard key={card.id + index} card={card} index={index} />
+                                    ))}
+                                </div>
+                            )}
+                        </section>
+
+                        {/* Fixed Grid Spread Deck */}
+                        <section className="bg-[#16121d] border border-[#2a2238] rounded-2xl p-6 shadow-lg flex-1">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="tarot-font text-xl font-bold text-[#F3E5AB]">
+                                    Shuffled Face-Down Deck Spread
+                                </h2>
+                                <span className="text-xs text-[#A098B0]">
+                                    Cards remain in fixed positions with empty placeholders upon selection
+                                </span>
+                            </div>
+
+                            {isComplete && selectedCards.length === targetDrawCount ? (
+                                <div className="py-12 text-center bg-[#130f19] rounded-xl border border-[#2a2238] flex flex-col items-center justify-center gap-4 mb-4">
+                                    <p className="tarot-font text-2xl text-[#F3E5AB]">The draw is complete.</p>
+                                    <p className="text-sm text-[#A098B0] max-w-md">You have selected all {targetDrawCount} cards. Review your spread above or click below to shuffle a fresh deck.</p>
+                                    <button
+                                        onClick={startNewDraw}
+                                        className="mt-2 px-6 py-2.5 rounded-lg bg-[#D4AF37] text-[#121016] font-semibold text-sm hover:bg-[#E5C158] transition-all shadow-md"
+                                    >
+                                        Start New Draw
+                                    </button>
+                                </div>
+                            ) : null}
+
+                            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3 sm:gap-4 justify-items-center py-4 max-h-[550px] overflow-y-auto px-2">
+                                {deck.map((card, index) => (
+                                    <TarotCardBack 
+                                        key={card.id} 
+                                        card={card}
+                                        isSelected={card.isChosen}
+                                        onClick={() => handleCardClick(card, index)}
+                                        isAnimating={animatingId === card.id}
+                                    />
+                                ))}
+                            </div>
+                        </section>
+                    </main>
+
+                    <footer className="border-t border-[#2A2238] bg-[#14101a] py-4 text-center text-xs text-[#827896]">
+                        <p>Digital Rider–Waite–Smith Tarot Deck • Pure random physical deck simulation with robust pictorial artwork.</p>
+                    </footer>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<TarotApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>
