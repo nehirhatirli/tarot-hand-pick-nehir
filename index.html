@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Rider–Waite–Smith Tarot Deck</title>
+    <title>1910 Rider–Waite–Smith (Pam A) Tarot Deck</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- React & ReactDOM -->
@@ -51,34 +51,12 @@
     <div id="root" class="min-h-full flex flex-col"></div>
 
     <script type="text/babel">
+        // tarot-hand-pick-nehir reposundaki cards klasörüne bağlı görsel kaynağı
+        const IMAGE_BASE_URL = "https://raw.githubusercontent.com/nehirhatirli/tarot-hand-pick-nehir/main/cards";
+        const IMAGE_EXT = "webp";
+
         const createFullDeck = () => {
             const deck = [];
-
-            // Major Arcana (22 cards) with verified Wikimedia Commons RWS scans
-            const majorImages = [
-                "https://upload.wikimedia.org/wikipedia/commons/9/90/Rider-Waite-Tarot_00_Fool.jpg", // 0 The Fool
-                "https://upload.wikimedia.org/wikipedia/commons/d/de/Rider-Waite-Tarot_01_Magician.jpg", // 1 The Magician
-                "https://upload.wikimedia.org/wikipedia/commons/8/88/Rider-Waite-Tarot_02_High_Priestess.jpg", // 2 High Priestess
-                "https://upload.wikimedia.org/wikipedia/commons/d/d2/Rider-Waite-Tarot_03_Empress.jpg", // 3 Empress
-                "https://upload.wikimedia.org/wikipedia/commons/c/c3/Rider-Waite-Tarot_04_Emperor.jpg", // 4 Emperor
-                "https://upload.wikimedia.org/wikipedia/commons/8/8d/Rider-Waite-Tarot_05_Hierophant.jpg", // 5 Hierophant
-                "https://upload.wikimedia.org/wikipedia/commons/d/db/Rider-Waite-Tarot_06_Lovers.jpg", // 6 Lovers
-                "https://upload.wikimedia.org/wikipedia/commons/9/9b/Rider-Waite-Tarot_07_Chariot.jpg", // 7 Chariot
-                "https://upload.wikimedia.org/wikipedia/commons/f/f5/Rider-Waite-Tarot_08_Strength.jpg", // 8 Strength
-                "https://upload.wikimedia.org/wikipedia/commons/4/4d/Rider-Waite-Tarot_09_Hermit.jpg", // 9 Hermit
-                "https://upload.wikimedia.org/wikipedia/commons/3/3c/Rider-Waite-Tarot_10_Wheel_of_Fortune.jpg", // 10 Wheel of Fortune
-                "https://upload.wikimedia.org/wikipedia/commons/e/e0/Rider-Waite-Tarot_11_Justice.jpg", // 11 Justice
-                "https://upload.wikimedia.org/wikipedia/commons/2/2b/Rider-Waite-Tarot_12_Hanged_Man.jpg", // 12 Hanged Man
-                "https://upload.wikimedia.org/wikipedia/commons/d/d7/Rider-Waite-Tarot_13_Death.jpg", // 13 Death
-                "https://upload.wikimedia.org/wikipedia/commons/f/f8/Rider-Waite-Tarot_14_Temperance.jpg", // 14 Temperance
-                "https://upload.wikimedia.org/wikipedia/commons/5/55/Rider-Waite-Tarot_15_Devil.jpg", // 15 Devil
-                "https://upload.wikimedia.org/wikipedia/commons/5/53/Rider-Waite-Tarot_16_Tower.jpg", // 16 Tower
-                "https://upload.wikimedia.org/wikipedia/commons/d/db/Rider-Waite-Tarot_17_Star.jpg", // 17 Star
-                "https://upload.wikimedia.org/wikipedia/commons/7/7f/Rider-Waite-Tarot_18_Moon.jpg", // 18 Moon
-                "https://upload.wikimedia.org/wikipedia/commons/1/17/Rider-Waite-Tarot_19_Sun.jpg", // 19 Sun
-                "https://upload.wikimedia.org/wikipedia/commons/d/dd/Rider-Waite-Tarot_20_Judgement.jpg", // 20 Judgement
-                "https://upload.wikimedia.org/wikipedia/commons/f/ff/Rider-Waite-Tarot_21_World.jpg"  // 21 World
-            ];
 
             const majors = [
                 "The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor",
@@ -90,13 +68,14 @@
             const romanNumerals = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX", "XXI"];
 
             majors.forEach((name, idx) => {
+                const paddedIdx = String(idx).padStart(2, '0');
                 deck.push({
-                    id: `major-${idx}`,
+                    id: `major-${paddedIdx}`,
                     name: name,
                     arcana: "Major Arcana",
                     suit: null,
                     number: romanNumerals[idx],
-                    image: majorImages[idx],
+                    image: `${IMAGE_BASE_URL}/major-${paddedIdx}.${IMAGE_EXT}`,
                     symbol: romanNumerals[idx]
                 });
             });
@@ -119,17 +98,16 @@
                 { name: "King", code: "14" }
             ];
 
-            suits.forEach((suit, suitIdx) => {
-                ranks.forEach((rank, rankIdx) => {
+            suits.forEach((suit) => {
+                ranks.forEach((rank) => {
                     const cardName = `${rank.name} of ${suit}`;
-                    const globalIndex = 22 + (suitIdx * 14) + rankIdx;
                     deck.push({
                         id: `minor-${suit.toLowerCase()}-${rank.code}`,
                         name: cardName,
                         arcana: "Minor Arcana",
                         suit: suit,
                         number: rank.name,
-                        image: `https://raw.githubusercontent.com/metabismuth/tarot-json/master/cards/${globalIndex}.jpg`,
+                        image: `${IMAGE_BASE_URL}/${suit.toLowerCase()}-${rank.code}.${IMAGE_EXT}`,
                         symbol: suit[0]
                     });
                 });
@@ -156,9 +134,11 @@
         };
 
         function TarotCardBack({ onClick, isSelected, isAnimating }) {
+            const [backError, setBackError] = React.useState(false);
+
             if (isSelected) {
                 return (
-                    <div className="w-24 sm:w-28 md:w-32 aspect-[2/3] rounded-xl border-2 border-dashed border-[#2F273D] bg-[#14101a]/40 flex items-center justify-center opacity-40 select-none">
+                    <div className="w-24 sm:w-28 md:w-32 aspect-[750/1290] rounded-xl border-2 border-dashed border-[#2F273D] bg-[#14101a]/40 flex items-center justify-center opacity-40 select-none">
                         <span className="text-[10px] text-[#5A4F70] tarot-font uppercase">Selected</span>
                     </div>
                 );
@@ -167,30 +147,39 @@
             return (
                 <div 
                     onClick={onClick}
-                    className={`group relative w-24 sm:w-28 md:w-32 aspect-[2/3] rounded-xl cursor-pointer select-none transition-transform duration-300 hover:-translate-y-2 hover:shadow-[0_10px_25px_rgba(212,175,55,0.25)] ${isAnimating ? 'scale-95 opacity-80' : ''}`}
+                    className={`group relative w-24 sm:w-28 md:w-32 aspect-[750/1290] rounded-xl cursor-pointer select-none transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_12px_28px_rgba(212,175,55,0.28)] active:scale-95 ${isAnimating ? 'scale-95 opacity-80' : ''}`}
                 >
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#1a1423] via-[#241c30] to-[#120e19] border-2 border-[#D4AF37]/40 shadow-2xl overflow-hidden flex flex-col items-center justify-center p-2">
-                        <div className="absolute inset-1.5 border border-[#D4AF37]/20 rounded-lg flex items-center justify-center">
-                            <div className="absolute inset-2 border border-[#D4AF37]/10 rounded flex items-center justify-center">
-                                <div className="w-8 h-8 sm:w-10 sm:h-10 rotate-45 border border-[#D4AF37]/40 flex items-center justify-center">
-                                    <div className="w-3 h-3 bg-[#D4AF37]/30 rounded-full"></div>
+                    <div className="absolute inset-0 rounded-xl bg-[#1a1423] border border-[#D4AF37]/45 group-hover:border-[#D4AF37] shadow-2xl overflow-hidden flex flex-col items-center justify-center transition-colors duration-300">
+                        {!backError ? (
+                            <>
+                                <img 
+                                    src={`${IMAGE_BASE_URL}/back.${IMAGE_EXT}`}
+                                    alt="Tarot Card Back"
+                                    onError={() => setBackError(true)}
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                                    loading="lazy"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#D4AF37]/0 to-[#D4AF37]/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                            </>
+                        ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-[#1a1423] via-[#241c30] to-[#120e19] flex flex-col items-center justify-center p-2 relative">
+                                <div className="absolute inset-1.5 border border-[#D4AF37]/20 rounded-lg flex items-center justify-center">
+                                    <div className="w-8 h-8 rotate-45 border border-[#D4AF37]/40 flex items-center justify-center">
+                                        <div className="w-3 h-3 bg-[#D4AF37]/30 rounded-full"></div>
+                                    </div>
                                 </div>
+                                <span className="text-[10px] tracking-widest text-[#D4AF37]/60 uppercase tarot-font font-semibold mt-auto mb-1">RWS</span>
                             </div>
-                        </div>
-                        <div className="absolute top-2 left-2 w-2 h-2 rounded-full bg-[#D4AF37]/40"></div>
-                        <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#D4AF37]/40"></div>
-                        <div className="absolute bottom-2 left-2 w-2 h-2 rounded-full bg-[#D4AF37]/40"></div>
-                        <div className="absolute bottom-2 right-2 w-2 h-2 rounded-full bg-[#D4AF37]/40"></div>
-                        <span className="text-[10px] tracking-widest text-[#D4AF37]/60 uppercase tarot-font font-semibold mt-auto mb-1">RWS</span>
+                        )}
                     </div>
                 </div>
             );
         }
 
-        function RevealedCard({ card, index }) {
+        function RevealedCard({ card, index, onInspect }) {
             const [imgError, setImgError] = React.useState(false);
+            const [imgLoaded, setImgLoaded] = React.useState(false);
 
-            // Suit color and icon helper for rich pictorial fallback if image fails
             const getSuitDetails = (suit) => {
                 switch(suit) {
                     case 'Wands': return { color: 'text-amber-500', bg: 'from-amber-950/60 to-orange-950/85', symbol: '🪵', border: 'border-amber-600/50' };
@@ -208,15 +197,19 @@
                     <div className="text-xs uppercase tracking-widest text-[#D4AF37] font-medium mb-2">
                         Card {index + 1}
                     </div>
-                    <div className="relative w-32 sm:w-36 md:w-44 aspect-[2/3] rounded-xl bg-[#1a1622] border-2 border-[#D4AF37]/60 shadow-[0_15px_30px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col items-center p-1.5 transition-transform duration-500">
-                        <div className={`w-full h-full relative overflow-hidden rounded-lg bg-[#110e17] flex items-center justify-center ${card.orientation === 'reversed' ? 'rotate-180' : ''}`}>
+                    <div 
+                        onClick={() => onInspect(card)}
+                        title="Click to inspect card details"
+                        className="group cursor-pointer relative w-32 sm:w-36 md:w-44 aspect-[750/1290] rounded-xl bg-[#1a1622] border border-[#D4AF37]/65 hover:border-[#F3E5AB] shadow-[0_15px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_18px_40px_rgba(212,175,55,0.22)] overflow-hidden flex flex-col items-center p-1 transition-all duration-300 hover:-translate-y-1"
+                    >
+                        <div className={`w-full h-full relative overflow-hidden rounded-lg bg-[#110e17] flex items-center justify-center transition-transform duration-500 ${card.orientation === 'reversed' ? 'rotate-180' : ''}`}>
                             {!imgError ? (
                                 <img 
                                     src={card.image} 
                                     alt={card.name}
+                                    onLoad={() => setImgLoaded(true)}
                                     onError={() => setImgError(true)}
-                                    className="w-full h-full object-cover"
-                                    loading="lazy"
+                                    className={`w-full h-full object-cover transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
                                 />
                             ) : (
                                 <div className={`flex flex-col items-center justify-center p-4 text-center bg-gradient-to-b ${details.bg} w-full h-full ${details.color} border ${details.border} relative`}>
@@ -230,9 +223,49 @@
                         </div>
                     </div>
                     <div className="mt-3 text-center">
-                        <h3 className="tarot-font text-base sm:text-lg font-bold text-[#F3E5AB] max-w-[140px] truncate">{card.name}</h3>
+                        <h3 className="tarot-font text-base sm:text-lg font-bold text-[#F3E5AB] max-w-[155px] truncate">{card.name}</h3>
                         <div className="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#2a2238] text-[#D4AF37] border border-[#D4AF37]/30">
                             {card.orientation === 'upright' ? 'Upright' : 'Reversed'}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function CardZoomModal({ card, onClose }) {
+            if (!card) return null;
+
+            return (
+                <div 
+                    onClick={onClose}
+                    className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-[#191422] border border-[#D4AF37]/50 rounded-2xl p-5 max-w-sm w-full flex flex-col items-center shadow-2xl relative"
+                    >
+                        <button
+                            onClick={onClose}
+                            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-[#261f33] text-[#E6E1DE] hover:text-[#D4AF37] flex items-center justify-center text-sm font-semibold transition-colors"
+                            aria-label="Close"
+                        >
+                            ✕
+                        </button>
+
+                        <div className="w-60 sm:w-64 aspect-[750/1290] rounded-xl overflow-hidden border border-[#D4AF37]/60 bg-[#110e17] shadow-xl mt-2">
+                            <img 
+                                src={card.image} 
+                                alt={card.name}
+                                className={`w-full h-full object-cover ${card.orientation === 'reversed' ? 'rotate-180' : ''}`}
+                            />
+                        </div>
+
+                        <div className="mt-4 text-center">
+                            <span className="text-[11px] uppercase tracking-widest text-[#A098B0]">{card.arcana}</span>
+                            <h3 className="tarot-font text-2xl font-bold text-[#F3E5AB] mt-0.5">{card.name}</h3>
+                            <span className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#2a2238] text-[#D4AF37] border border-[#D4AF37]/30">
+                                {card.orientation === 'upright' ? 'Upright' : 'Reversed'}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -246,6 +279,7 @@
             const [targetDrawCount, setTargetDrawCount] = React.useState(3);
             const [isComplete, setIsComplete] = React.useState(false);
             const [animatingId, setAnimatingId] = React.useState(null);
+            const [inspectedCard, setInspectedCard] = React.useState(null);
 
             const startNewDraw = () => {
                 const shuffled = cryptoShuffle(fullDeck).map(card => ({
@@ -256,13 +290,14 @@
                 setSelectedCards([]);
                 setIsComplete(false);
                 setAnimatingId(null);
+                setInspectedCard(null);
             };
 
             React.useEffect(() => {
                 startNewDraw();
             }, [targetDrawCount]);
 
-            const handleCardClick = (card, index) => {
+            const handleCardClick = (card) => {
                 if (isComplete || animatingId || card.isChosen || selectedCards.length >= targetDrawCount) return;
 
                 setAnimatingId(card.id);
@@ -297,7 +332,7 @@
                                     Rider–Waite–Smith Tarot Deck
                                 </h1>
                                 <p className="text-xs sm:text-sm text-[#A098B0]">
-                                    A digital simulation of shuffling and drawing from a physical tarot deck.
+                                    1910 Pamela Colman Smith (Pam A) Edition • Physical Deck Simulation
                                 </p>
                             </div>
 
@@ -345,12 +380,17 @@
 
                         {/* Selected Results Area */}
                         <section className="bg-[#15111c] border border-[#292036] rounded-2xl p-6 shadow-inner">
-                            <h2 className="tarot-font text-xl font-bold text-[#F3E5AB] mb-4 flex items-center gap-2">
-                                <span>Selected Cards</span>
-                                <span className="text-xs font-sans font-normal text-[#A098B0] bg-[#221b2f] px-2.5 py-0.5 rounded-full">
-                                    In order of selection
-                                </span>
-                            </h2>
+                            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                                <h2 className="tarot-font text-xl font-bold text-[#F3E5AB] flex items-center gap-2">
+                                    <span>Selected Cards</span>
+                                    <span className="text-xs font-sans font-normal text-[#A098B0] bg-[#221b2f] px-2.5 py-0.5 rounded-full">
+                                        In order of selection
+                                    </span>
+                                </h2>
+                                {selectedCards.length > 0 && (
+                                    <span className="text-xs text-[#827896]">Tap any revealed card to enlarge</span>
+                                )}
+                            </div>
 
                             {selectedCards.length === 0 ? (
                                 <div className="py-12 text-center text-[#827896] border-2 border-dashed border-[#261E33] rounded-xl">
@@ -359,7 +399,12 @@
                             ) : (
                                 <div className="flex flex-wrap gap-6 justify-center sm:justify-start">
                                     {selectedCards.map((card, index) => (
-                                        <RevealedCard key={card.id + index} card={card} index={index} />
+                                        <RevealedCard 
+                                            key={card.id + index} 
+                                            card={card} 
+                                            index={index} 
+                                            onInspect={setInspectedCard}
+                                        />
                                     ))}
                                 </div>
                             )}
@@ -367,7 +412,7 @@
 
                         {/* Fixed Grid Spread Deck */}
                         <section className="bg-[#16121d] border border-[#2a2238] rounded-2xl p-6 shadow-lg flex-1">
-                            <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                                 <h2 className="tarot-font text-xl font-bold text-[#F3E5AB]">
                                     Shuffled Face-Down Deck Spread
                                 </h2>
@@ -390,12 +435,11 @@
                             ) : null}
 
                             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3 sm:gap-4 justify-items-center py-4 max-h-[550px] overflow-y-auto px-2">
-                                {deck.map((card, index) => (
+                                {deck.map((card) => (
                                     <TarotCardBack 
                                         key={card.id} 
-                                        card={card}
                                         isSelected={card.isChosen}
-                                        onClick={() => handleCardClick(card, index)}
+                                        onClick={() => handleCardClick(card)}
                                         isAnimating={animatingId === card.id}
                                     />
                                 ))}
@@ -404,13 +448,19 @@
                     </main>
 
                     <footer className="border-t border-[#2A2238] bg-[#14101a] py-4 text-center text-xs text-[#827896]">
-                        <p>Digital Rider–Waite–Smith Tarot Deck • Pure random physical deck simulation with robust pictorial artwork.</p>
+                        <p>Digital Rider–Waite–Smith (1910 Pam A) Tarot Deck • Pure random physical deck simulation.</p>
                     </footer>
+
+                    <CardZoomModal 
+                        card={inspectedCard} 
+                        onClose={() => setInspectedCard(null)} 
+                    />
                 </div>
             );
         }
 
-        ReactDOM.render(<TarotApp />, document.getElementById('root'));
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<TarotApp />);
     </script>
 </body>
 </html>
