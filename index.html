@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nehir's Handpick Tarot Deck</title>
+    <title>Nehir H Handpick Tarot Deck</title>
     <!-- Link Önizleme (WhatsApp / Sosyal Medya) Etiketleri -->
-    <meta property="og:title" content="Nehir's Handpick Tarot Deck">
-    <meta property="og:description" content="1910 Pamela Colman Smith (Pam A) Edition • Physical Deck Simulation">
+    <meta property="og:title" content="Nehir H Handpick Tarot Deck">
     <meta property="og:image" content="https://raw.githubusercontent.com/nehirhatirli/tarot-hand-pick-nehir/main/cards/back.webp">
     <meta property="og:type" content="website">
     <!-- Tailwind CSS -->
@@ -58,6 +57,60 @@
     <script type="text/babel">
         const IMAGE_BASE_URL = "https://raw.githubusercontent.com/nehirhatirli/tarot-hand-pick-nehir/main/cards";
         const IMAGE_EXT = "webp";
+
+        const SPREAD_TEMPLATES = [
+            {
+                id: "free",
+                name: "Free Draw (1–10 Cards)",
+                isFree: true,
+                positions: []
+            },
+            {
+                id: "ppf",
+                name: "Past – Present – Future (3 Cards)",
+                positions: [
+                    { label: "Past", hint: "Roots & influences" },
+                    { label: "Present", hint: "Current energy" },
+                    { label: "Future", hint: "Likely trajectory" }
+                ]
+            },
+            {
+                id: "relationship-3",
+                name: "Relationship – Core (3 Cards)",
+                positions: [
+                    { label: "You", hint: "Your energy & stance" },
+                    { label: "Them", hint: "Their energy & stance" },
+                    { label: "The Dynamic", hint: "Connection between you" }
+                ]
+            },
+            {
+                id: "relationship-5",
+                name: "Relationship – Deep (5 Cards)",
+                positions: [
+                    { label: "You", hint: "Your heart & intentions" },
+                    { label: "Them", hint: "Their heart & intentions" },
+                    { label: "Past Energy", hint: "Shared foundation" },
+                    { label: "Current Dynamic", hint: "Where things stand" },
+                    { label: "Guidance", hint: "Advice / potential" }
+                ]
+            },
+            {
+                id: "celtic-cross",
+                name: "Celtic Cross (10 Cards)",
+                positions: [
+                    { label: "1. Present", hint: "Heart of the matter" },
+                    { label: "2. Challenge", hint: "Crossing obstacle" },
+                    { label: "3. Foundation", hint: "Subconscious root" },
+                    { label: "4. Past", hint: "Recent receding energy" },
+                    { label: "5. Crown", hint: "Conscious goal / best outcome" },
+                    { label: "6. Future", hint: "Approaching influence" },
+                    { label: "7. Self", hint: "Your attitude & role" },
+                    { label: "8. Environment", hint: "External people & forces" },
+                    { label: "9. Hopes & Fears", hint: "Inner expectations" },
+                    { label: "10. Outcome", hint: "Culmination" }
+                ]
+            }
+        ];
 
         const createFullDeck = () => {
             const deck = [];
@@ -137,7 +190,7 @@
             return (buffer[0] % 2 === 0) ? 'upright' : 'reversed';
         };
 
-        function TarotCardBack({ onClick, isSelected, isAnimating }) {
+        function TarotCardBack({ onClick, isSelected, isAnimating, isInteractive }) {
             const [backError, setBackError] = React.useState(false);
 
             if (isSelected) {
@@ -150,20 +203,28 @@
 
             return (
                 <div 
-                    onClick={onClick}
-                    className={`group relative w-24 sm:w-28 md:w-32 aspect-[750/1290] rounded-xl cursor-pointer select-none transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_12px_28px_rgba(212,175,55,0.28)] active:scale-95 ${isAnimating ? 'scale-95 opacity-80' : ''}`}
+                    onClick={isInteractive ? onClick : undefined}
+                    className={`group relative w-24 sm:w-28 md:w-32 aspect-[750/1290] rounded-xl select-none transition-all duration-300 ${
+                        isInteractive
+                            ? 'cursor-pointer hover:-translate-y-2 hover:shadow-[0_12px_28px_rgba(212,175,55,0.28)] active:scale-95'
+                            : 'cursor-default opacity-55'
+                    } ${isAnimating ? 'scale-95 opacity-80' : ''}`}
                 >
-                    <div className="absolute inset-0 rounded-xl bg-[#1a1423] border border-[#D4AF37]/45 group-hover:border-[#D4AF37] shadow-2xl overflow-hidden flex flex-col items-center justify-center transition-colors duration-300">
+                    <div className={`absolute inset-0 rounded-xl bg-[#1a1423] border shadow-2xl overflow-hidden flex flex-col items-center justify-center transition-colors duration-300 ${
+                        isInteractive ? 'border-[#D4AF37]/45 group-hover:border-[#D4AF37]' : 'border-[#3A304D]/50'
+                    }`}>
                         {!backError ? (
                             <>
                                 <img 
                                     src={`${IMAGE_BASE_URL}/back.${IMAGE_EXT}`}
                                     alt="Tarot Card Back"
                                     onError={() => setBackError(true)}
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                                    className={`w-full h-full object-cover transition-transform duration-500 ${isInteractive ? 'group-hover:scale-[1.02]' : ''}`}
                                     loading="lazy"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#D4AF37]/0 to-[#D4AF37]/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                                {isInteractive && (
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#D4AF37]/0 to-[#D4AF37]/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                                )}
                             </>
                         ) : (
                             <div className="w-full h-full bg-gradient-to-br from-[#1a1423] via-[#241c30] to-[#120e19] flex flex-col items-center justify-center p-2 relative">
@@ -180,7 +241,7 @@
             );
         }
 
-        function RevealedCard({ card, index, onInspect }) {
+        function CardVisual({ card, onInspect, sizeClass = "w-32 sm:w-36 md:w-44" }) {
             const [imgError, setImgError] = React.useState(false);
             const [imgLoaded, setImgLoaded] = React.useState(false);
 
@@ -197,41 +258,107 @@
             const details = getSuitDetails(card.suit);
 
             return (
-                <div className="flex flex-col items-center animate-fadeIn">
-                    <div className="text-xs uppercase tracking-widest text-[#D4AF37] font-medium mb-2">
-                        Card {index + 1}
-                    </div>
-                    <div 
-                        onClick={() => onInspect(card)}
-                        title="Click to inspect card details"
-                        className="group cursor-pointer relative w-32 sm:w-36 md:w-44 aspect-[750/1290] rounded-xl bg-[#1a1622] border border-[#D4AF37]/65 hover:border-[#F3E5AB] shadow-[0_15px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_18px_40px_rgba(212,175,55,0.22)] overflow-hidden flex flex-col items-center p-1 transition-all duration-300 hover:-translate-y-1"
-                    >
-                        <div className={`w-full h-full relative overflow-hidden rounded-lg bg-[#110e17] flex items-center justify-center transition-transform duration-500 ${card.orientation === 'reversed' ? 'rotate-180' : ''}`}>
-                            {!imgError ? (
-                                <img 
-                                    src={card.image} 
-                                    alt={card.name}
-                                    onLoad={() => setImgLoaded(true)}
-                                    onError={() => setImgError(true)}
-                                    className={`w-full h-full object-cover transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
-                                />
-                            ) : (
-                                <div className={`flex flex-col items-center justify-center p-4 text-center bg-gradient-to-b ${details.bg} w-full h-full ${details.color} border ${details.border} relative`}>
-                                    <div className="absolute inset-1 border border-dashed border-[#D4AF37]/30 rounded flex flex-col items-center justify-center p-2">
-                                        <div className="text-3xl mb-2">{details.symbol}</div>
-                                        <span className="tarot-font text-2xl font-bold tracking-wider text-[#F3E5AB] mb-1">{card.number || card.symbol}</span>
-                                        <span className="text-[11px] font-semibold uppercase tracking-wider text-[#E6E1DE] leading-tight">{card.name}</span>
-                                    </div>
+                <div 
+                    onClick={() => onInspect(card)}
+                    title="Click to enlarge"
+                    className={`group cursor-pointer relative ${sizeClass} aspect-[750/1290] rounded-xl bg-[#1a1622] border border-[#D4AF37]/65 hover:border-[#F3E5AB] shadow-[0_15px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_18px_40px_rgba(212,175,55,0.22)] overflow-hidden flex flex-col items-center p-1 transition-all duration-300 hover:-translate-y-1`}
+                >
+                    <div className={`w-full h-full relative overflow-hidden rounded-lg bg-[#110e17] flex items-center justify-center transition-transform duration-500 ${card.orientation === 'reversed' ? 'rotate-180' : ''}`}>
+                        {!imgError ? (
+                            <img 
+                                src={card.image} 
+                                alt={card.name}
+                                onLoad={() => setImgLoaded(true)}
+                                onError={() => setImgError(true)}
+                                className={`w-full h-full object-cover transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+                            />
+                        ) : (
+                            <div className={`flex flex-col items-center justify-center p-4 text-center bg-gradient-to-b ${details.bg} w-full h-full ${details.color} border ${details.border} relative`}>
+                                <div className="absolute inset-1 border border-dashed border-[#D4AF37]/30 rounded flex flex-col items-center justify-center p-2">
+                                    <div className="text-3xl mb-2">{details.symbol}</div>
+                                    <span className="tarot-font text-2xl font-bold tracking-wider text-[#F3E5AB] mb-1">{card.number || card.symbol}</span>
+                                    <span className="text-[11px] font-semibold uppercase tracking-wider text-[#E6E1DE] leading-tight">{card.name}</span>
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
+                </div>
+            );
+        }
+
+        function RevealedCardSlot({ card, onInspect, canClarify, isClarifyTarget, onToggleClarify }) {
+            return (
+                <div className={`flex flex-col items-center animate-fadeIn p-3 rounded-2xl transition-colors ${
+                    isClarifyTarget 
+                        ? 'bg-[#241c33] border border-[#D4AF37] shadow-[0_0_20px_rgba(212,175,55,0.18)]' 
+                        : card.drawType === 'closing'
+                            ? 'bg-[#1c1628]/80 border border-[#D4AF37]/30'
+                            : 'bg-transparent border border-transparent'
+                }`}>
+                    {/* Position Label */}
+                    <div className="text-center mb-2 min-h-[34px] flex flex-col justify-end">
+                        <div className="text-xs uppercase tracking-widest text-[#D4AF37] font-semibold">
+                            {card.positionLabel}
+                        </div>
+                        {card.positionHint && (
+                            <div className="text-[11px] text-[#8E84A3] leading-tight mt-0.5">
+                                {card.positionHint}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Main Card Image */}
+                    <CardVisual card={card} onInspect={onInspect} />
+
+                    {/* Card Name & Orientation */}
                     <div className="mt-3 text-center">
-                        <h3 className="tarot-font text-base sm:text-lg font-bold text-[#F3E5AB] max-w-[155px] truncate">{card.name}</h3>
+                        <h3 className="tarot-font text-base sm:text-lg font-bold text-[#F3E5AB] max-w-[165px] leading-snug">
+                            {card.name}
+                        </h3>
                         <div className="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#2a2238] text-[#D4AF37] border border-[#D4AF37]/30">
                             {card.orientation === 'upright' ? 'Upright' : 'Reversed'}
                         </div>
                     </div>
+
+                    {/* Clarify Action Button (Shown once main spread completes) */}
+                    {canClarify && (
+                        <button
+                            onClick={() => onToggleClarify(card)}
+                            className={`mt-2.5 px-3 py-1 rounded-lg text-xs font-medium transition-all flex items-center gap-1 ${
+                                isClarifyTarget
+                                    ? 'bg-[#D4AF37] text-[#121016] font-semibold shadow'
+                                    : 'bg-[#221b30] text-[#D4AF37] border border-[#D4AF37]/35 hover:bg-[#2d2440] hover:border-[#D4AF37]'
+                            }`}
+                        >
+                            <span>{isClarifyTarget ? 'Cancel Clarify' : '+ Clarify'}</span>
+                        </button>
+                    )}
+
+                    {/* Attached Clarifier Cards */}
+                    {card.clarifiers && card.clarifiers.length > 0 && (
+                        <div className="mt-4 pt-3 border-t border-dashed border-[#D4AF37]/35 w-full flex flex-col items-center gap-4">
+                            {card.clarifiers.map((clarifier, cIdx) => (
+                                <div key={clarifier.uid} className="flex flex-col items-center animate-fadeIn">
+                                    <span className="text-[10px] uppercase tracking-widest text-[#C4B5FD] bg-[#261e36] px-2 py-0.5 rounded-full border border-[#C4B5FD]/25 mb-2">
+                                        Clarifier {card.clarifiers.length > 1 ? `#${cIdx + 1}` : ''}
+                                    </span>
+                                    <CardVisual 
+                                        card={clarifier} 
+                                        onInspect={onInspect} 
+                                        sizeClass="w-24 sm:w-28 md:w-32" 
+                                    />
+                                    <div className="mt-2 text-center">
+                                        <h4 className="tarot-font text-sm font-bold text-[#F3E5AB] max-w-[140px] leading-tight">
+                                            {clarifier.name}
+                                        </h4>
+                                        <span className="mt-1 inline-block px-2 py-0.5 rounded-full text-[11px] bg-[#241d31] text-[#D4AF37] border border-[#D4AF37]/25">
+                                            {clarifier.orientation === 'upright' ? 'Upright' : 'Reversed'}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             );
         }
@@ -255,6 +382,12 @@
                         >
                             ✕
                         </button>
+
+                        {card.positionLabel && (
+                            <div className="text-xs uppercase tracking-widest text-[#D4AF37] font-semibold mt-1">
+                                {card.positionLabel}
+                            </div>
+                        )}
 
                         <div className="w-60 sm:w-64 aspect-[750/1290] rounded-xl overflow-hidden border border-[#D4AF37]/60 bg-[#110e17] shadow-xl mt-2">
                             <img 
@@ -280,10 +413,19 @@
             const [fullDeck] = React.useState(() => createFullDeck());
             const [deck, setDeck] = React.useState([]);
             const [selectedCards, setSelectedCards] = React.useState([]);
-            const [targetDrawCount, setTargetDrawCount] = React.useState(3);
-            const [isComplete, setIsComplete] = React.useState(false);
+            const [selectedSpreadId, setSelectedSpreadId] = React.useState("ppf");
+            const [freeDrawCount, setFreeDrawCount] = React.useState(3);
             const [animatingId, setAnimatingId] = React.useState(null);
             const [inspectedCard, setInspectedCard] = React.useState(null);
+            const [drawMode, setDrawMode] = React.useState('main');
+
+            const activeSpread = SPREAD_TEMPLATES.find(s => s.id === selectedSpreadId) || SPREAD_TEMPLATES[0];
+            const targetMainCount = activeSpread.isFree ? freeDrawCount : activeSpread.positions.length;
+
+            const mainDrawnCount = selectedCards.filter(c => c.drawType === 'main').length;
+            const isMainComplete = mainDrawnCount >= targetMainCount;
+            const remainingCount = deck.filter(c => !c.isChosen).length;
+            const canInteractWithDeck = remainingCount > 0 && (!isMainComplete || drawMode !== 'idle');
 
             const startNewDraw = () => {
                 const shuffled = cryptoShuffle(fullDeck).map(card => ({
@@ -292,68 +434,136 @@
                 }));
                 setDeck(shuffled);
                 setSelectedCards([]);
-                setIsComplete(false);
                 setAnimatingId(null);
                 setInspectedCard(null);
+                setDrawMode('main');
             };
 
             React.useEffect(() => {
                 startNewDraw();
-            }, [targetDrawCount]);
+            }, [selectedSpreadId, freeDrawCount]);
+
+            const handleToggleClarifyTarget = (targetCard) => {
+                if (drawMode && drawMode.type === 'clarify-card' && drawMode.targetUid === targetCard.uid) {
+                    setDrawMode('idle');
+                } else {
+                    setDrawMode({
+                        type: 'clarify-card',
+                        targetUid: targetCard.uid,
+                        targetLabel: targetCard.positionLabel
+                    });
+                }
+            };
+
+            const handleToggleClosingDraw = () => {
+                if (drawMode && drawMode.type === 'closing') {
+                    setDrawMode('idle');
+                } else {
+                    setDrawMode({ type: 'closing' });
+                }
+            };
 
             const handleCardClick = (card) => {
-                if (isComplete || animatingId || card.isChosen || selectedCards.length >= targetDrawCount) return;
+                if (!canInteractWithDeck || animatingId || card.isChosen) return;
 
                 setAnimatingId(card.id);
                 const orientation = cryptoRandomOrientation();
 
                 setTimeout(() => {
-                    const revealedCard = {
-                        ...card,
-                        orientation
-                    };
+                    const uid = `${card.id}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 
-                    const newSelected = [...selectedCards, revealedCard];
-                    setSelectedCards(newSelected);
+                    if (!isMainComplete) {
+                        const posInfo = !activeSpread.isFree ? activeSpread.positions[mainDrawnCount] : null;
+                        const revealedCard = {
+                            ...card,
+                            uid,
+                            orientation,
+                            drawType: 'main',
+                            positionLabel: posInfo ? posInfo.label : `Card ${mainDrawnCount + 1}`,
+                            positionHint: posInfo ? posInfo.hint : null,
+                            clarifiers: []
+                        };
+
+                        const nextCount = mainDrawnCount + 1;
+                        setSelectedCards(prev => [...prev, revealedCard]);
+                        if (nextCount >= targetMainCount) {
+                            setDrawMode('idle');
+                        }
+                    } else if (drawMode && drawMode.type === 'clarify-card') {
+                        const clarifierCard = {
+                            ...card,
+                            uid,
+                            orientation,
+                            positionLabel: `Clarifier for ${drawMode.targetLabel}`
+                        };
+
+                        setSelectedCards(prev => prev.map(item => 
+                            item.uid === drawMode.targetUid
+                                ? { ...item, clarifiers: [...item.clarifiers, clarifierCard] }
+                                : item
+                        ));
+                        setDrawMode('idle');
+                    } else if (drawMode && drawMode.type === 'closing') {
+                        const closingIndex = selectedCards.filter(c => c.drawType === 'closing').length + 1;
+                        const closingCard = {
+                            ...card,
+                            uid,
+                            orientation,
+                            drawType: 'closing',
+                            positionLabel: closingIndex === 1 ? 'Closing / Clarifier' : `Closing / Clarifier ${closingIndex}`,
+                            positionHint: 'Additional guidance',
+                            clarifiers: []
+                        };
+
+                        setSelectedCards(prev => [...prev, closingCard]);
+                        setDrawMode('idle');
+                    }
 
                     setDeck(prevDeck => prevDeck.map(c => c.id === card.id ? { ...c, isChosen: true } : c));
                     setAnimatingId(null);
-
-                    if (newSelected.length >= targetDrawCount) {
-                        setIsComplete(true);
-                    }
-                }, 300);
+                }, 280);
             };
-
-            const remainingCount = deck.filter(c => !c.isChosen).length;
 
             return (
                 <div className="min-h-screen flex flex-col bg-[#121016] text-[#E6E1DE]">
-                    <header className="border-b border-[#2A2238] bg-[#16121d]/80 backdrop-blur-md sticky top-0 z-30 px-4 py-4 sm:px-8">
-                        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div>
+                    <header className="border-b border-[#2A2238] bg-[#16121d]/85 backdrop-blur-md sticky top-0 z-30 px-4 py-4 sm:px-8">
+                        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+                            <div className="text-center lg:text-left">
                                 <h1 className="tarot-font text-2xl sm:text-3xl font-bold tracking-wide text-[#F3E5AB]">
-                                    Nehir's Handpick Tarot Deck
+                                    Nehir H Handpick Tarot Deck
                                 </h1>
-                                <p className="text-xs sm:text-sm text-[#A098B0]">
-                                    1910 Pamela Colman Smith (Pam A) Edition • Physical Deck Simulation
-                                </p>
                             </div>
 
-                            <div className="flex items-center gap-4 flex-wrap justify-center">
+                            <div className="flex items-center gap-3 flex-wrap justify-center">
+                                {/* Spread Selector */}
                                 <div className="flex items-center gap-2 bg-[#201a2c] px-3 py-1.5 rounded-lg border border-[#3A304D]">
-                                    <span className="text-xs text-[#A098B0] font-medium">Draw Count:</span>
+                                    <span className="text-xs text-[#A098B0] font-medium">Spread:</span>
                                     <select 
-                                        value={targetDrawCount}
-                                        onChange={(e) => setTargetDrawCount(Number(e.target.value))}
-                                        disabled={selectedCards.length > 0 && !isComplete}
-                                        className="bg-[#121016] text-[#F3E5AB] text-sm font-semibold rounded px-2 py-0.5 border border-[#4A3E5C] focus:outline-none focus:border-[#D4AF37]"
+                                        value={selectedSpreadId}
+                                        onChange={(e) => setSelectedSpreadId(e.target.value)}
+                                        className="bg-[#121016] text-[#F3E5AB] text-sm font-semibold rounded px-2 py-1 border border-[#4A3E5C] focus:outline-none focus:border-[#D4AF37]"
                                     >
-                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
-                                            <option key={n} value={n}>{n} {n === 1 ? 'Card' : 'Cards'}</option>
+                                        {SPREAD_TEMPLATES.map(spread => (
+                                            <option key={spread.id} value={spread.id}>{spread.name}</option>
                                         ))}
                                     </select>
                                 </div>
+
+                                {/* Card Count Selector (Only when Free Draw is active) */}
+                                {activeSpread.isFree && (
+                                    <div className="flex items-center gap-2 bg-[#201a2c] px-3 py-1.5 rounded-lg border border-[#3A304D]">
+                                        <span className="text-xs text-[#A098B0] font-medium">Cards:</span>
+                                        <select 
+                                            value={freeDrawCount}
+                                            onChange={(e) => setFreeDrawCount(Number(e.target.value))}
+                                            className="bg-[#121016] text-[#F3E5AB] text-sm font-semibold rounded px-2 py-1 border border-[#4A3E5C] focus:outline-none focus:border-[#D4AF37]"
+                                        >
+                                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                                                <option key={n} value={n}>{n}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
 
                                 <button
                                     onClick={startNewDraw}
@@ -366,48 +576,86 @@
                     </header>
 
                     <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 sm:py-8 flex flex-col gap-8">
-                        <div className="flex flex-col sm:flex-row items-center justify-between bg-[#191422] border border-[#2E243D] rounded-xl p-4 shadow-lg gap-3">
-                            <div className="flex items-center gap-3">
-                                <div className="w-3 h-3 rounded-full bg-[#D4AF37] animate-pulse"></div>
+                        {/* Dynamic Status Banner */}
+                        <div className={`flex flex-col sm:flex-row items-center justify-between rounded-xl p-4 shadow-lg gap-3 border transition-colors ${
+                            drawMode && typeof drawMode === 'object'
+                                ? 'bg-[#241b33] border-[#D4AF37]'
+                                : 'bg-[#191422] border-[#2E243D]'
+                        }`}>
+                            <div className="flex items-center gap-3 text-center sm:text-left">
+                                <div className="w-3 h-3 rounded-full bg-[#D4AF37] animate-pulse shrink-0"></div>
                                 <span className="text-sm font-medium">
-                                    {isComplete ? (
-                                        <span className="text-[#F3E5AB] font-semibold">Draw Complete ({targetDrawCount} of {targetDrawCount} selected)</span>
+                                    {!isMainComplete ? (
+                                        <span>
+                                            Next position: <strong className="text-[#F3E5AB]">
+                                                {!activeSpread.isFree ? activeSpread.positions[mainDrawnCount]?.label : `Card ${mainDrawnCount + 1}`}
+                                            </strong> ({mainDrawnCount} of {targetMainCount} drawn)
+                                        </span>
+                                    ) : drawMode && drawMode.type === 'clarify-card' ? (
+                                        <span className="text-[#F3E5AB]">
+                                            <strong>Clarifier Mode:</strong> Pick a face-down card below to clarify <strong>{drawMode.targetLabel}</strong>.
+                                        </span>
+                                    ) : drawMode && drawMode.type === 'closing' ? (
+                                        <span className="text-[#F3E5AB]">
+                                            <strong>Closing Card Mode:</strong> Pick a face-down card below as an overall clarifier / closing card.
+                                        </span>
                                     ) : (
-                                        <span>Selected <strong className="text-[#F3E5AB]">{selectedCards.length}</strong> of <strong className="text-[#F3E5AB]">{targetDrawCount}</strong> cards. Click any face-down card below.</span>
+                                        <span className="text-[#F3E5AB] font-semibold">
+                                            Spread Complete — Use "+ Clarify" on any card or "+ Closing Card" to draw from the remaining deck.
+                                        </span>
                                     )}
                                 </span>
                             </div>
-                            <span className="text-xs text-[#A098B0]">
+                            <span className="text-xs text-[#A098B0] shrink-0">
                                 Remaining in deck: <strong className="text-[#E6E1DE]">{remainingCount}</strong> / 78
                             </span>
                         </div>
 
                         {/* Selected Results Area */}
                         <section className="bg-[#15111c] border border-[#292036] rounded-2xl p-6 shadow-inner">
-                            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                                <h2 className="tarot-font text-xl font-bold text-[#F3E5AB] flex items-center gap-2">
-                                    <span>Selected Cards</span>
-                                    <span className="text-xs font-sans font-normal text-[#A098B0] bg-[#221b2f] px-2.5 py-0.5 rounded-full">
-                                        In order of selection
-                                    </span>
-                                </h2>
-                                {selectedCards.length > 0 && (
-                                    <span className="text-xs text-[#827896]">Tap any revealed card to enlarge</span>
+                            <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+                                <div className="flex items-center gap-2.5 flex-wrap">
+                                    <h2 className="tarot-font text-xl font-bold text-[#F3E5AB]">
+                                        {activeSpread.isFree ? 'Selected Cards' : activeSpread.name}
+                                    </h2>
+                                    {selectedCards.length > 0 && (
+                                        <span className="text-xs text-[#827896]">• Tap any card to enlarge</span>
+                                    )}
+                                </div>
+
+                                {isMainComplete && remainingCount > 0 && (
+                                    <button
+                                        onClick={handleToggleClosingDraw}
+                                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                            drawMode && drawMode.type === 'closing'
+                                                ? 'bg-[#D4AF37] text-[#121016] shadow-md'
+                                                : 'bg-[#231c31] text-[#F3E5AB] border border-[#D4AF37]/45 hover:border-[#D4AF37]'
+                                        }`}
+                                    >
+                                        {drawMode && drawMode.type === 'closing' ? 'Cancel Closing Draw' : '+ Closing Card'}
+                                    </button>
                                 )}
                             </div>
 
                             {selectedCards.length === 0 ? (
                                 <div className="py-12 text-center text-[#827896] border-2 border-dashed border-[#261E33] rounded-xl">
-                                    <p className="text-sm">No cards drawn yet. Select cards from the deck below.</p>
+                                    <p className="text-sm">
+                                        {activeSpread.isFree 
+                                            ? 'No cards drawn yet. Select cards from the shuffled deck below.'
+                                            : `Ready for ${activeSpread.name}. Click a face-down card below to reveal "${activeSpread.positions[0].label}".`
+                                        }
+                                    </p>
                                 </div>
                             ) : (
-                                <div className="flex flex-wrap gap-6 justify-center sm:justify-start">
-                                    {selectedCards.map((card, index) => (
-                                        <RevealedCard 
-                                            key={card.id + index} 
+                                <div className="flex flex-wrap gap-4 sm:gap-6 justify-center sm:justify-start items-start">
+                                    {selectedCards.map((card) => (
+                                        <RevealedCardSlot 
+                                            key={card.uid} 
                                             card={card} 
-                                            index={index} 
                                             onInspect={setInspectedCard}
+                                            canClarify={isMainComplete && remainingCount > 0}
+                                            isClarifyTarget={drawMode && drawMode.type === 'clarify-card' && drawMode.targetUid === card.uid}
+                                            onToggleClarify={handleToggleClarifyTarget}
                                         />
                                     ))}
                                 </div>
@@ -415,34 +663,26 @@
                         </section>
 
                         {/* Fixed Grid Spread Deck */}
-                        <section className="bg-[#16121d] border border-[#2a2238] rounded-2xl p-6 shadow-lg flex-1">
+                        <section className={`bg-[#16121d] border rounded-2xl p-6 shadow-lg flex-1 transition-colors ${
+                            drawMode && typeof drawMode === 'object' ? 'border-[#D4AF37]/70' : 'border-[#2a2238]'
+                        }`}>
                             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                                 <h2 className="tarot-font text-xl font-bold text-[#F3E5AB]">
                                     Shuffled Face-Down Deck Spread
                                 </h2>
                                 <span className="text-xs text-[#A098B0]">
-                                    Cards remain in fixed positions with empty placeholders upon selection
+                                    {canInteractWithDeck
+                                        ? 'Cards remain in fixed positions upon selection'
+                                        : 'Spread complete • Select "+ Clarify" above to pull more or shuffle a new deck'}
                                 </span>
                             </div>
-
-                            {isComplete && selectedCards.length === targetDrawCount ? (
-                                <div className="py-12 text-center bg-[#130f19] rounded-xl border border-[#2a2238] flex flex-col items-center justify-center gap-4 mb-4">
-                                    <p className="tarot-font text-2xl text-[#F3E5AB]">The draw is complete.</p>
-                                    <p className="text-sm text-[#A098B0] max-w-md">You have selected all {targetDrawCount} cards. Review your spread above or click below to shuffle a fresh deck.</p>
-                                    <button
-                                        onClick={startNewDraw}
-                                        className="mt-2 px-6 py-2.5 rounded-lg bg-[#D4AF37] text-[#121016] font-semibold text-sm hover:bg-[#E5C158] transition-all shadow-md"
-                                    >
-                                        Start New Draw
-                                    </button>
-                                </div>
-                            ) : null}
 
                             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3 sm:gap-4 justify-items-center py-4 max-h-[550px] overflow-y-auto px-2">
                                 {deck.map((card) => (
                                     <TarotCardBack 
                                         key={card.id} 
                                         isSelected={card.isChosen}
+                                        isInteractive={canInteractWithDeck}
                                         onClick={() => handleCardClick(card)}
                                         isAnimating={animatingId === card.id}
                                     />
@@ -452,7 +692,7 @@
                     </main>
 
                     <footer className="border-t border-[#2A2238] bg-[#14101a] py-4 text-center text-xs text-[#827896]">
-                        <p>Nehir's Handpick Tarot Deck • 1910 Pam A Physical Deck Simulation.</p>
+                        <p>Nehir H Handpick Tarot Deck</p>
                     </footer>
 
                     <CardZoomModal 
